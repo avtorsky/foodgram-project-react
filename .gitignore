@@ -130,3 +130,9 @@ dmypy.json
 
 # .idea
 .idea
+
+# Project stuff
+.README.md
+pytest.ini
+setup.cfg
+tests/

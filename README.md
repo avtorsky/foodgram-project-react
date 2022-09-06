@@ -34,7 +34,7 @@ cd ../infra/
 touch .env && nano .env
 ```
 
-Specify variables according to the [template](https://github.com/avtorsky/foodgram_project_react/blob/master/infra/.env.template), save modified variables to .env and launch nginx container with frontend:
+Specify variables according to the [template](https://github.com/avtorsky/foodgram-project-react/blob/master/infra/.env.template), save modified variables to .env and launch nginx container with frontend:
 
 ```bash
 docker-compose up -d --build nginx

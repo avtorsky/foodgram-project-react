@@ -132,10 +132,7 @@ dmypy.json
 .idea
 
 # Project stuff
-.README.md
-pytest.ini
-setup.cfg
-tests/
 frontend/
 data/
 backend/foodgram_api/media/
+.DS_Store

@@ -134,7 +134,10 @@ class RecipeIngredient(models.Model):
         validators=(
             validators.MinValueValidator(
                 1,
-                message='Нельзя просто так взять и приготовить рецепт без ингредиентов.',
+                message=(
+                    'Нельзя просто так взять и приготовить рецепт '
+                    'без ингредиентов.'
+                ),
             ),
         ),
         verbose_name='Количество',

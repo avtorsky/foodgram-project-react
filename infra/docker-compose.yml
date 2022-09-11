@@ -1,19 +1,51 @@
 version: '3.3'
 services:
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+  db:
+    image: postgres:13-alpine
+    container_name: foodgram_db
     volumes:
-      - ../frontend/:/app/result_build/
+      - db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  backend:
+    image: avtorsky/foodgram_api:latest
+    container_name: foodgram_api
+    restart: always
+    expose:
+      - 8000
+    volumes:
+      - static_value:/app/static/
+      - media_value:/app/media/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
   nginx:
     image: nginx:1.19.3
+    container_name: foodgram_nginx
     ports:
       - '80:80'
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/app/static/
+      - media_value:/app/media/
+    depends_on:
+      - backend
+
+  frontend:
+    image: avtorsky/foodgram_ui:latest
+    container_name: foodgram_ui
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - nginx
+  
+volumes:
+  db:
+  static_value:
+  media_value:

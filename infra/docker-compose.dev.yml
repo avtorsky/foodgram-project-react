@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+
+  frontend_dev:
+    extends:
+      file: docker-compose.yml
+      service: frontend
+    container_name: foodgram_ui_dev
+  
+  nginx_dev:
+    extends:
+      file: docker-compose.yml
+      service: nginx
+    container_name: foodgram_nginx_dev
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/conf.d/default.conf
+    

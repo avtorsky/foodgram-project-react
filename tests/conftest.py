@@ -4,7 +4,8 @@ import sys
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.join(ROOT_DIR, 'backend')
 root_dir_content = os.listdir(BASE_DIR)
 PROJECT_DIR_NAME = 'foodgram_api'
 
@@ -26,4 +27,6 @@ if FILENAME not in project_dir_content:
         f'Убедитесь, что у вас верная структура проекта.'
     )
 
-pytest_plugins = []
+pytest_plugins = [
+    'tests.fixtures.fixture_user',
+]

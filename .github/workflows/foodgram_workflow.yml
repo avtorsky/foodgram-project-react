@@ -21,7 +21,6 @@ jobs:
 
     - name: unit testing
       run: |
-        cd ../
         pytest
         python -m flake8
 

@@ -1,12 +1,7 @@
 import os
-import sys
 
-root_dir = os.path.basename(os.path.dirname(__file__))
-sys.path.append(root_dir)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-BASE_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend'
-)
 root_dir_content = os.listdir(BASE_DIR)
 
 PROJECT_DIR_NAME = 'foodgram_api'

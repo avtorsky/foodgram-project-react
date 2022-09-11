@@ -1,7 +1,7 @@
 import os
 import sys
 
-root_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.abspath(__file__)
 sys.path.append(root_dir)
 
 BASE_DIR = os.path.join(

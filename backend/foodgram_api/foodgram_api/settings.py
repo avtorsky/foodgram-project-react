@@ -8,11 +8,11 @@ ENV_PATH = Path('../infra') / '.env'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(dotenv_path=ENV_PATH)
-SECRET_KEY = os.getenv('SECRET_KEY', default='42')
+SECRET_KEY = os.getenv('FOODGRAM_SECRET_KEY', default='42')
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.getenv('FOODGRAM_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -63,11 +63,11 @@ WSGI_APPLICATION = 'foodgram_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.getenv('FOODGRAM_POSTGRES_DB'),
+        'USER': os.getenv('FOODGRAM_POSTGRES_USER'),
+        'PASSWORD': os.getenv('FOODGRAM_POSTGRES_PASSWORD'),
+        'HOST': os.getenv('FOODGRAM_DB_HOST'),
+        'PORT': os.getenv('FOODGRAM_DB_PORT'),
     }
 }
 

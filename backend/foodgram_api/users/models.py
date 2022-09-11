@@ -36,7 +36,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank=False,
         validators=[
             validators.RegexValidator(
-                regex=r'^[\w.@+-]+$',
+                regex=r'^[\w.@+-]{3,150}$',
                 message='Недопустимое значение поля.',
             )
         ],

@@ -143,7 +143,8 @@ class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
     def validate_amount(value):
         if value <= 0:
             raise exceptions.ValidationError(
-                'Нельзя просто так взять и приготовить рецепт без ингредиентов.'
+                'Нельзя просто так взять и приготовить рецепт '
+                'без ингредиентов.'
             )
         return value
 
@@ -208,6 +209,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def vaildate(self, data):
         ingredients = data['ingredients']
+        if not ingredients:
+            raise serializers.ValidationError(
+                {'ingredients': 'Необходимо выбрать хотя бы один ингредиент.'}
+            )
         ingredients_list = []
         for ingredient in ingredients:
             ingredient_id = ingredient['id']
@@ -220,7 +225,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             if int(amount) <= 0:
                 raise serializers.ValidationError(
                     {
-                        'amount': 'Количество ингредиента должно быть больше нуля.'
+                        'amount': (
+                            'Количество ингредиента должно быть больше нуля.'
+                        )
                     }
                 )
         tags = data['tags']
@@ -239,7 +246,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if int(cooking_time) <= 0:
             raise serializers.ValidationError(
                 {
-                    'cooking_time': 'Время приготовления должно быть больше нуля.'
+                    'cooking_time': (
+                        'Время приготовления должно быть больше нуля.'
+                    )
                 }
             )
         return data
@@ -344,7 +353,9 @@ class FavoriteSerializer(serializers.ModelSerializer):
         if user == recipe.author:
             raise serializers.ValidationError(
                 {
-                    'recipes': 'Нельзя просто так взять и подписаться на свой рецепт.'
+                    'recipes': (
+                        'Нельзя просто так взять и подписаться на свой рецепт.'
+                    )
                 }
             )
         if Favorite.objects.filter(user=user, recipe=recipe).exists():

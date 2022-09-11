@@ -1,7 +1,11 @@
+import os
+from django.conf import settings
 from django.db.models import Sum
 from django.http.response import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from reportlab.pdfbase import pdfmetrics, ttfonts
+from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -48,6 +52,28 @@ class CustomUserViewSet(UserViewSet):
         methods=('GET',),
         detail=False,
         permission_classes=(IsAuthenticated,),
+        url_path='me',
+    )
+    def get_current_user(self, request):
+        user = request.user
+        serializer = CustomUserSerializer(
+            user,
+            context={'request': request},
+        )
+        if user.is_anonymous:
+            return Response(
+                {'users': 'Учетные данные не были предоставлены.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        methods=('GET',),
+        detail=False,
+        permission_classes=(IsAuthenticated,),
         url_path='subscriptions',
     )
     def subscriptions(self, request):
@@ -73,7 +99,9 @@ class CustomUserViewSet(UserViewSet):
             if user == author:
                 return Response(
                     {
-                        'subscribe': 'Нельзя просто так взять и подписаться на себя.'
+                        'subscribe': (
+                            'Нельзя просто так взять и подписаться на себя.'
+                        )
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -85,13 +113,6 @@ class CustomUserViewSet(UserViewSet):
             follow = Follow.objects.create(user=user, author=author)
             serializer = FollowSerializer(follow, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif user == author:
-            return Response(
-                {
-                    'subscribe': 'Нельзя просто так взять и подписаться на себя.'
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         follow = Follow.objects.filter(user=user, author=author)
         if follow.exists():
             follow.delete()
@@ -167,6 +188,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'favorite': 'Рецепт уже добавлен в избранное.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             return self.post_favorite_or_shopping_cart(Favorite, user, recipe)
         elif request.method == 'DELETE':
             return self.delete_favorite_or_shopping_cart(
@@ -183,6 +209,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
+            if Cart.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'shopping_cart': 'Рецепт уже добавлен в список покупок.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             return self.post_favorite_or_shopping_cart(Cart, user, recipe)
         elif request.method == 'DELETE':
             return self.delete_favorite_or_shopping_cart(Cart, user, recipe)
@@ -195,7 +226,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         user = request.user
-        filename = 'Список_покупок.txt'
         ingredients = (
             RecipeIngredient.objects.filter(recipe__cart__user=user)
             .values(
@@ -209,13 +239,39 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'ingredient__measurement_unit',
             )
         )
-        content = ''
+        response_list = {}
         for item in ingredients:
-            content += f'{item[0]} ' f'- {item[1]} ' f'{item[2]}\r\n'
-        response = HttpResponse(
-            content,
-            content_type='text/plain',
-            charset='utf-8',
+            name = item[0]
+            if name not in response_list:
+                response_list[name] = {
+                    'amount': item[1],
+                    'measurement_unit': item[2],
+                }
+            else:
+                response_list[name]['amount'] += item[2]
+        pdfmetrics.registerFont(
+            ttfonts.TTFont(
+                'AGHelveticaCyr',
+                os.path.join(settings.BASE_DIR, 'fonts', 'AGHelveticaCyr.ttf'),
+                'UTF-8',
+            )
         )
-        response['Content-Disposition'] = f'attachment; filename={filename}'
+        response = HttpResponse(content_type='application/pdf')
+        shopping_cart_list = canvas.Canvas(response)
+        shopping_cart_list.setFont('AGHelveticaCyr', size=24)
+        shopping_cart_list.drawString(200, 770, 'Cписок покупок')
+        shopping_cart_list.setFont('AGHelveticaCyr', size=14)
+        height = 700
+        for list_number, (name, data) in enumerate(response_list.items(), 1):
+            shopping_cart_list.drawString(
+                80,
+                height,
+                (
+                    f'{list_number}. {name} - {data["amount"]} '
+                    f'{data["measurement_unit"]}'
+                ),
+            )
+            height -= 20
+        shopping_cart_list.showPage()
+        shopping_cart_list.save()
         return response

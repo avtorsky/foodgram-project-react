@@ -4,8 +4,9 @@ import sys
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.join(root_dir, 'backend')
 root_dir_content = os.listdir(BASE_DIR)
+
 PROJECT_DIR_NAME = 'foodgram_api'
 
 if PROJECT_DIR_NAME not in root_dir_content or not os.path.isdir(

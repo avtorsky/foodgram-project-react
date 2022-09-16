@@ -6,16 +6,20 @@
 [Testing](#testing) /
 [Healthcheck](#healthcheck)
 
-[![CI](https://github.com/avtorsky/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?branch=master)](https://github.com/avtorsky/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
+[![CI](https://github.com/avtorsky/foodgram-project-react/actions/workflows/foodgram_api_dev.yml/badge.svg?branch=master)](https://github.com/avtorsky/foodgram-project-react/actions/workflows/foodgram_api_dev.yml)
 
 ## About
 Recipe networking service API.
 
 ## Changelog
+Release 20220916:
+* ci: Nginx 443 port ssl config
+* ci: Docker production host setup
+* ci(./github/workflows/foodgram_api_dev.yml): foodgram_api_dev image delivery pipeline setup
+* fix(./backend/foodgram_api/api/urls.py): swap router to SimpleRouter && switch default renderer to JSON
+* fix(./infra/): Nginx and Docker config split to dev && production environments
+
 Release 20220911:
-* ci: nginx 443 port letsencrypt config
-* ci: app production host setup
-* ci(./github/workflows/foodgram_workflow.yml): production delivery pipeline setup
 * test(./backend/tests/): pytest for /auth && /users API endpoints setup
 * fix(./README.md): development deploy specifications update
 * fix(./infra/docker-compose.yml): split the deploy workflow for dev && production
@@ -34,9 +38,10 @@ Clone repository and install all dependencies:
 
 ```bash
 git clone https://github.com/avtorsky/foodgram_project_react.git
-cd /foodgram-project-react/backend/
+cd backend
 python -m venv venv
 source venv/bin/activate
+cd foodgram_api
 python3 -m pip install --upgrade pip
 pip3 install -r requirements.txt
 ```
@@ -44,34 +49,35 @@ pip3 install -r requirements.txt
 Create ./infra/.env file:
 
 ```bash
-cd ../infra/
+cd ../../infra
 touch .env && nano .env
 ```
 
-Specify variables according to the [template](https://github.com/avtorsky/foodgram-project-react/blob/master/infra/.env.template) and save modified variables to .env and initiate nginx_dev build:
+Specify variables according to the [template](https://github.com/avtorsky/foodgram-project-react/blob/master/infra/.env.template), save modified variables to .env then switch to backend directory, run migrations, create superuser and collect static:
 
 ```bash
-docker-compose -f docker-compose.dev.yml up -d --build nginx_dev
-```
-
-Switch to backend directory, run migrations, create superuser and collect static:
-
-```bash
-cd ../backend/foodgram_api/
+cd ../backend/foodgram_api
 python3 manage.py migrate
 python3 manage.py createsuperuser
 python3 manage.py collectstatic --no-input
 python3 manage.py runserver 0:8000
 ```
 
-## Testing
-
-To manually launch unit testing switch back to root backend directory
+Finally initiate nginx build:
 
 ```bash
-cd ../
-pwd /foodgram-project-react/backend
-pytest && python -m flake8
+cd ../../infra
+docker-compose up -d --build nginx_dev_service
+```
+
+## Testing
+
+Switch to testing rootdir
+
+```bash
+cd backend
+python -m flake8
+pytest
 ```
 
 ## Healthcheck

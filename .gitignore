@@ -134,5 +134,7 @@ dmypy.json
 # Project stuff
 frontend/
 data/
-backend/foodgram_api/media/
+backend/foodgram_api/apimedia/
+backend/foodgram_api/apistatic/
+infra/production/nginx/certbot/
 .DS_Store

@@ -10,9 +10,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(dotenv_path=ENV_PATH)
 SECRET_KEY = os.getenv('FOODGRAM_SECRET_KEY', default='42')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = os.getenv('FOODGRAM_HOSTS', '*').split(',')
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'FOODGRAM_TRUSTED_ORIGINS', 'http://*.localhost'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -63,11 +67,11 @@ WSGI_APPLICATION = 'foodgram_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('FOODGRAM_POSTGRES_DB'),
-        'USER': os.getenv('FOODGRAM_POSTGRES_USER'),
-        'PASSWORD': os.getenv('FOODGRAM_POSTGRES_PASSWORD'),
-        'HOST': os.getenv('FOODGRAM_DB_HOST'),
-        'PORT': os.getenv('FOODGRAM_DB_PORT'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -96,19 +100,22 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = '/apistatic/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'apistatic')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/apimedia/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apimedia')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],

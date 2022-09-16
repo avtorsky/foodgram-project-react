@@ -1,0 +1,57 @@
+version: '3.3'
+services:
+
+  foodgram_db_service:
+    image: postgres:13.0-alpine
+    container_name: foodgram_db
+    volumes:
+      - /var/lib/postgresql/data/
+    env_file:
+      - .env
+
+  foodgram_backend_service:
+    image: avtorsky/foodgram_api:latest
+    container_name: foodgram_api
+    restart: always
+    expose:
+      - 8000
+    volumes:
+      - static_value:/app/apistatic/
+      - media_value:/app/apimedia/
+    depends_on:
+      - foodgram_db_service
+    env_file:
+      - .env
+
+  foodgram_nginx_service:
+    image: nginx:1.21.3-alpine
+    container_name: foodgram_nginx
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./nginx/certbot/conf/:/etc/nginx/ssl/:ro
+      - ./nginx/certbot/www:/var/www/certbot/:ro
+      - ./frontend/build:/usr/share/nginx/html/
+      - ./docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/app/apistatic/
+      - media_value:/app/apimedia/
+  
+  foodgram_certbot_service:
+    image: certbot/certbot:latest
+    container_name: foodgram_ssl
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt/:rw
+      - ./nginx/certbot/www:/var/www/certbot/:rw
+
+  foodgram_frontend_service:
+    image: avtorsky/foodgram_ui:latest
+    container_name: foodgram_ui
+    volumes:
+      - ./frontend/:/app/result_build/
+  
+volumes:
+  static_value:
+  media_value:

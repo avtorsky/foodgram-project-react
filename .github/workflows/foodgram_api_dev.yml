@@ -19,7 +19,9 @@ jobs:
         pip install -r requirements.txt 
     - name: run linting and unit testing
       run: |
-        python -m flake8
+        python -m flake8 --ignore E501,W503,I001,I005 \
+                         --exclude tests,migrations,venv,env \
+                         --max-complexity 10
         pytest
 
   backend_dev_deliver_to_docker_hub:

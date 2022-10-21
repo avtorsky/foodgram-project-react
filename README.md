@@ -12,6 +12,9 @@
 Recipe networking service API.
 
 ## Changelog
+Release 20221021:
+* fix(./backend/foodgram_api/api/serializers.py): RecipeCreateSerializer validation fix
+
 Release 20220916:
 * ci: Nginx 443 port ssl config
 * ci: Docker production host setup

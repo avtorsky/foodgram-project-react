@@ -147,7 +147,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Представление для обработки запросов к ресурсу рецептов."""
 
     queryset = Recipe.objects.all()
-    serializer_class = RecipeListSerializer
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)

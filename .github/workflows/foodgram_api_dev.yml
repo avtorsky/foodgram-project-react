@@ -18,7 +18,6 @@ jobs:
         pip install -r backend/foodgram_api/requirements.txt
     - name: run linting and unit testing
       run: |
-        cd backend/
         python -m flake8 backend/foodgram_api --ignore E501,W503,I001,I005
         python -m pytest backend/tests
 

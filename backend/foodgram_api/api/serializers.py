@@ -139,15 +139,6 @@ class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
     )
     amount = serializers.IntegerField()
 
-    @staticmethod
-    def validate_amount(value):
-        if value <= 0:
-            raise exceptions.ValidationError(
-                'Нельзя просто так взять и приготовить рецепт '
-                'без ингредиентов.'
-            )
-        return value
-
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
@@ -207,51 +198,49 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         for tag in tags:
             recipe.tags.add(tag)
 
-    def vaildate(self, data):
-        ingredients = data['ingredients']
-        if not ingredients:
-            raise serializers.ValidationError(
-                {'ingredients': 'Необходимо выбрать хотя бы один ингредиент.'}
+    @staticmethod
+    def validate_ingredients(data):
+        if not data:
+            raise exceptions.ValidationError(
+                'Необходимо выбрать хотя бы один ингредиент.'
             )
         ingredients_list = []
-        for ingredient in ingredients:
+        for ingredient in data:
             ingredient_id = ingredient['id']
             if ingredient_id in ingredients_list:
-                raise serializers.ValidationError(
-                    {'ingredients': 'Ингредиенты должны быть уникальными.'}
+                raise exceptions.ValidationError(
+                    'Необходимо исключить дублирование ингредиентов.'
                 )
             ingredients_list.append(ingredient_id)
             amount = ingredient['amount']
             if int(amount) <= 0:
-                raise serializers.ValidationError(
-                    {
-                        'amount': (
-                            'Количество ингредиента должно быть больше нуля.'
-                        )
-                    }
+                raise exceptions.ValidationError(
+                    'Количество ингредиента должно быть больше нуля.'
                 )
-        tags = data['tags']
-        if not tags:
-            raise serializers.ValidationError(
-                {'tags': 'Необходимо выбрать хотя бы один тег.'}
-            )
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise serializers.ValidationErro(
-                    {'tags': 'Теги должны быть уникальными.'}
-                )
-            tags_list.append(tag)
-        cooking_time = data['cooking_time']
-        if int(cooking_time) <= 0:
-            raise serializers.ValidationError(
-                {
-                    'cooking_time': (
-                        'Время приготовления должно быть больше нуля.'
-                    )
-                }
-            )
         return data
+
+    @staticmethod
+    def validate_tags(data):
+        if not data:
+            raise exceptions.ValidationError(
+                'Необходимо выбрать хотя бы один тег.'
+            )
+        tag_list = []
+        for tag in data:
+            if tag in tag_list:
+                raise exceptions.ValidationError(
+                    'Теги должны быть уникальными.'
+                )
+            tag_list.append(tag)
+        return data
+
+    @staticmethod
+    def validate_cooking_time(value):
+        if int(value) <= 0:
+            raise exceptions.ValidationError(
+                'Время приготовления должно быть больше нуля.'
+            )
+        return value
 
     def create(self, validated_data):
         author = self.context.get('request').user
@@ -290,7 +279,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(
                 queryset=Recipe.objects.all(),
                 fields=('name', 'text'),
-                message='Рецепт с таким описанием уже есть в базе.',
+                message='Рецепт с таким названием уже есть в базе.',
             )
         ]
 

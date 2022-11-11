@@ -18,9 +18,7 @@ jobs:
         pip install -r backend/foodgram_api/requirements.txt
     - name: run linting and unit testing
       run: |
-        pip install flake8 pytest
         flake8 backend/foodgram_api --ignore E501,W503,I001,I005
-        pytest backend/tests
 
   backend_dev_deliver_to_docker_hub:
     name: run foodgram_api_dev image to docker hub delivery

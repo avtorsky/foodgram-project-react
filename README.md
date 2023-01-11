@@ -85,13 +85,7 @@ pytest
 
 ## Healthcheck
 * GUI host: https://foodgram.avtorskydeployed.online
-* Admin panel: https://foodgram.avtorskydeployed.online/admin/
 * API specs: https://foodgram.avtorskydeployed.online/api/docs/
 
-```
-Reviewer credentials
-email: review-admin@foodgram.fake
-password: fo0dgr@mTest
-``` 
 
 
